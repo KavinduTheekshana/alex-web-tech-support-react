@@ -58,14 +58,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y sshpass rsync
 
-          echo "Testing connection to server..."
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 $SSH_USER@$SSH_HOST "echo 'Connection successful'; mkdir -p /httpdocs"
+          echo "Testing connection and finding web directory..."
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 $SSH_USER@$SSH_HOST "echo 'Connection successful'; pwd; ls -la"
+
+          echo "Finding httpdocs directory..."
+          WEB_DIR=$(sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 $SSH_USER@$SSH_HOST "find ~ -type d -name 'httpdocs' 2>/dev/null | head -1 || echo 'httpdocs'")
+          echo "Using directory: $WEB_DIR"
 
           echo "Deploying files..."
-          sshpass -p "$SSH_PASS" rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22" --delete ./build/ $SSH_USER@$SSH_HOST:/httpdocs/
+          sshpass -p "$SSH_PASS" rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22" --delete ./build/ $SSH_USER@$SSH_HOST:$WEB_DIR/
 
           echo "Verifying deployment..."
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 $SSH_USER@$SSH_HOST "ls -la /httpdocs/"
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 $SSH_USER@$SSH_HOST "ls -la $WEB_DIR/ | head -20"
 
       - name: ✅ Deployment Complete
         run: echo "🎉 Deployment completed successfully!"
