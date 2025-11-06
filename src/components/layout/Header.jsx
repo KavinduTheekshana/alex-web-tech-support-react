@@ -154,7 +154,7 @@ const Header = () => {
       <div id="targetElement" className="sidebar-area sidebar__hide">
         <div className="sidebar__overlay"></div>
         <Link to="/" className="logo mb-40">
-          <img src="/assets/images/logo/logo.svg" alt="logo" />
+          <img src="/assets/images/logo/logo-horizontal.svg" alt="logo" />
         </Link>
         <div className="sidebar__search mb-30">
           <input type="text" placeholder="Search..." />
