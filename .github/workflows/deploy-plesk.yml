@@ -26,17 +26,23 @@ jobs:
           npm install
           CI=false npm run build
 
-      - name: 📂 Deploy to Plesk
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
-        with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: 22
-          local_path: './build/'
-          remote_path: '/httpdocs'
-          sftp_only: true
-          sftpArgs: '-o ConnectTimeout=5'
+      - name: 📂 Deploy to Plesk via SFTP
+        env:
+          SSH_HOST: ${{ secrets.FTP_HOST }}
+          SSH_USER: ${{ secrets.FTP_USERNAME }}
+          SSH_PASS: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass rsync
+
+          echo "Testing connection to server..."
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 $SSH_USER@$SSH_HOST "echo 'Connection successful'; mkdir -p /httpdocs"
+
+          echo "Deploying files..."
+          sshpass -p "$SSH_PASS" rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22" --delete ./build/ $SSH_USER@$SSH_HOST:/httpdocs/
+
+          echo "Verifying deployment..."
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 $SSH_USER@$SSH_HOST "ls -la /httpdocs/"
 
       - name: ✅ Deployment Complete
         run: echo "🎉 Deployment completed successfully!"
