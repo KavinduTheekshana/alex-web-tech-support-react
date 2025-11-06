@@ -66,31 +66,16 @@ function Contact() {
       return;
     }
 
-    // Simulate form submission (in production, this would call an API)
-    // For now, we'll just show a success message after a delay
-    setTimeout(() => {
-      setFormStatus({
-        type: 'success',
-        message: 'Thank you for your message! We will get back to you soon.'
-      });
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        phone: '',
-        message: ''
-      });
-      setIsSubmitting(false);
-    }, 1500);
-
-    // TODO: In production, replace the setTimeout above with actual API call:
-    /*
     try {
-      const response = await fetch('/api/contact', {
+      // Send email using PHP SMTP backend
+      const response = await fetch('/api/contact.php', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(formData)
       });
+
       const data = await response.json();
 
       if (data.success) {
@@ -98,7 +83,15 @@ function Contact() {
           type: 'success',
           message: data.message || 'Thank you for your message! We will get back to you soon.'
         });
-        setFormData({ name: '', email: '', subject: '', phone: '', message: '' });
+
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          phone: '',
+          message: ''
+        });
       } else {
         setFormStatus({
           type: 'error',
@@ -106,14 +99,14 @@ function Contact() {
         });
       }
     } catch (error) {
+      console.error('Contact Form Error:', error);
       setFormStatus({
         type: 'error',
-        message: 'An error occurred. Please try again or email us directly at info@techsupportinc.co.uk'
+        message: 'An error occurred while sending your message. Please try again or email us directly at info@techsupportinc.co.uk'
       });
     } finally {
       setIsSubmitting(false);
     }
-    */
   };
 
   return (
