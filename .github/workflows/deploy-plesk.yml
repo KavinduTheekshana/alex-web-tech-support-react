@@ -26,6 +26,29 @@ jobs:
           npm install
           CI=false npm run build
 
+      - name: 🔍 Debug Secrets
+        run: |
+          echo "Checking if secrets are set..."
+          if [ -z "${{ secrets.FTP_HOST }}" ]; then
+            echo "❌ FTP_HOST is NOT set or is empty"
+          else
+            echo "✅ FTP_HOST is set (length: ${#FTP_HOST})"
+          fi
+
+          if [ -z "${{ secrets.FTP_USERNAME }}" ]; then
+            echo "❌ FTP_USERNAME is NOT set or is empty"
+          else
+            echo "✅ FTP_USERNAME is set"
+          fi
+
+          if [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
+            echo "❌ FTP_PASSWORD is NOT set or is empty"
+          else
+            echo "✅ FTP_PASSWORD is set"
+          fi
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+
       - name: 📂 Deploy to Plesk via SFTP
         env:
           SSH_HOST: ${{ secrets.FTP_HOST }}
